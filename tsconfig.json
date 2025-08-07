@@ -23,11 +23,6 @@
     "./scripts/**/*",
     "./typechain-types/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "cache",
-    "artifacts"
-  ],
+  "exclude": ["node_modules", "dist", "cache", "artifacts"],
   "files": ["./hardhat.config.ts"]
 }
