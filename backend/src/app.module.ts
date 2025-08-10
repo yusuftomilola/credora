@@ -12,6 +12,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IpfsModule } from './ipfs/ipfs.module';
+import { DocumentsModule } from './documents/documents.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -40,6 +42,14 @@ import { IpfsModule } from './ipfs/ipfs.module';
         },
       }),
     }),
+    // 3. Register Bull queue for document processing
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      },
+    }),
+    DocumentsModule,
   IpfsModule,
 
     UsersModule,
