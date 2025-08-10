@@ -15,6 +15,8 @@ import { IpfsModule } from './ipfs/ipfs.module';
 import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
 
+import { RiskModule } from './risk/risk.module';
+
 @Module({
   imports: [
     // 1. Load the .env file
@@ -66,6 +68,7 @@ import { BullModule } from '@nestjs/bull';
         limit: 10,
       },
     ]),
+  RiskModule,
   ],
   controllers: [AppController],
   providers: [
