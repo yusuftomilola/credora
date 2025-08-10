@@ -3,9 +3,21 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class RiskService {
   // Multi-factor risk scoring
-  calculateRiskScore(data: any): number {
-    // TODO: Implement ensemble model logic
-    return 0;
+  calculateRiskScore(data: any): { score: number; breakdown: Record<string, number> } {
+    // Example factors: user history, transaction amount, location, device
+    const factors: Record<string, number> = {};
+    // User history risk (0-30)
+    factors.userHistory = data.userHistoryScore ?? 10;
+    // Transaction amount risk (0-30)
+    factors.transactionAmount = data.transactionAmount > 10000 ? 25 : 10;
+    // Location risk (0-20)
+    factors.location = data.location === 'high-risk' ? 18 : 5;
+    // Device risk (0-20)
+    factors.device = data.deviceTrusted ? 2 : 15;
+
+    // Total risk score (0-100)
+    const score = Object.values(factors).reduce((a, b) => a + b, 0);
+    return { score, breakdown: factors };
   }
 
   // Real-time fraud detection

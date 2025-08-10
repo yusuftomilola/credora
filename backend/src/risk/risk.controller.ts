@@ -7,8 +7,8 @@ export class RiskController {
 
   @Post('score')
   getRiskScore(@Body() data: any) {
-    const score = this.riskService.calculateRiskScore(data);
-    return { score };
+    const result = this.riskService.calculateRiskScore(data);
+    return result;
   }
 
   @Post('fraud')
