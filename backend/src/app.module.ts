@@ -13,6 +13,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IpfsModule } from './ipfs/ipfs.module';
 
+import { RiskModule } from './risk/risk.module';
+
 @Module({
   imports: [
     // 1. Load the .env file
@@ -56,6 +58,7 @@ import { IpfsModule } from './ipfs/ipfs.module';
         limit: 10,
       },
     ]),
+  RiskModule,
   ],
   controllers: [AppController],
   providers: [
