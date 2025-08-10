@@ -11,6 +11,7 @@ This module provides integration with major credit bureaus (Experian, Equifax, T
 - Error handling and retry logic with exponential backoff
 - Webhook handling for updates from credit bureaus
 - Support for sandbox/production environment switching
+- Comprehensive test coverage
 
 ## Usage
 
