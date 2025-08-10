@@ -13,42 +13,37 @@ export class RiskController {
 
   @Post('fraud')
   detectFraud(@Body() data: any) {
-    const fraud = this.riskService.detectFraud(data);
-    return { fraud };
+    return this.riskService.detectFraud(data);
   }
 
   @Post('anomaly')
   detectAnomaly(@Body() data: any) {
-    const anomaly = this.riskService.detectAnomaly(data);
-    return { anomaly };
+    return this.riskService.detectAnomaly(data);
   }
 
   @Post('geo')
   assessGeo(@Body('location') location: string) {
-    const risk = this.riskService.assessGeographicRisk(location);
-    return { risk };
+    return this.riskService.assessGeographicRisk(location);
   }
 
   @Post('device')
   fingerprintDevice(@Body('deviceInfo') deviceInfo: any) {
-    const fingerprint = this.riskService.fingerprintDevice(deviceInfo);
-    return { fingerprint };
+    return this.riskService.fingerprintDevice(deviceInfo);
   }
 
   @Get('threshold')
   getThreshold() {
-    return { threshold: this.riskService.getRiskThreshold() };
+    return this.riskService.getRiskThreshold();
   }
 
   @Post('adjust')
   adjustRisk(@Body() body: { score: number; context: any }) {
-    const adjusted = this.riskService.adjustRiskScore(body.score, body.context);
-    return { adjusted };
+    return this.riskService.adjustRiskScore(body.score, body.context);
   }
 
   @Post('explanation')
   getExplanation(@Body() data: any) {
-    return { explanation: this.riskService.getRiskExplanation(data) };
+    return this.riskService.getRiskExplanation(data);
   }
 
   @Get('performance')
