@@ -40,6 +40,10 @@ export class DocumentProcessing {
   @Column({ type: 'jsonb', nullable: true })
   duplicateCheck?: any;
 
+
+  @Column({ type: 'varchar', nullable: false })
+  userId: string;
+
   @Column({ type: 'jsonb', nullable: true })
   error?: any;
 
