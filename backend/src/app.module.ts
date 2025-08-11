@@ -12,6 +12,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IpfsModule } from './ipfs/ipfs.module';
+import { CreditBureauModule } from './credit-bureaus/credit-bureau.module';
 import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
 
@@ -61,6 +62,9 @@ import { RiskModule } from './risk/risk.module';
     RedisModule,
 
     EmailModule,
+
+    // Credit Bureau Integration
+    CreditBureauModule,
 
     ThrottlerModule.forRoot([
       {
