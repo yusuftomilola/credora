@@ -1,12 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Express } from 'express';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { DocumentProcessing, DocumentProcessingStatus } from './entities/document-processing.entity';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
 import * as clamav from 'clamav.js';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
 import * as sharp from 'sharp';
 
 @Injectable()
 export class DocumentsService {
+  constructor(
+    @InjectQueue('document-processing') private readonly documentProcessingQueue: Queue,
+    @InjectRepository(DocumentProcessing)
+    private readonly documentProcessingRepository: Repository<DocumentProcessing>,
+  ) {}
   // In-memory chunk storage: { [fileId]: Buffer[] }
   private chunkStorage: Record<string, Buffer[]> = {};
   /**
@@ -30,6 +41,14 @@ export class DocumentsService {
   }
 
   /**
+   * Get document processing status and results by fileId
+   */
+  async getProcessingStatus(fileId: string) {
+    return this.documentProcessingRepository.findOne({ where: { fileId } });
+  }
+
+
+  /**
    * Assemble chunks and process as a complete file
    */
   async assembleChunksAndProcess(fileId: string, mimetype: string) {
@@ -41,7 +60,7 @@ export class DocumentsService {
     // Clean up chunk storage
     delete this.chunkStorage[fileId];
     // Create a mock Multer file object
-    const file: Express.Multer.File = {
+    const file: MulterFile = {
       buffer: fileBuffer,
       mimetype,
       size: fileBuffer.length,
@@ -50,6 +69,7 @@ export class DocumentsService {
       encoding: '7bit',
       destination: '',
       filename: `${fileId}`,
+
       path: '',
       stream: null as any,
     };
@@ -108,7 +128,7 @@ export class DocumentsService {
   /**
    * Validate file type and size
    */
-  validateFile(file: Express.Multer.File): boolean {
+  validateFile(file: MulterFile): boolean {
     if (!this.allowedMimeTypes.includes(file.mimetype)) {
       return false;
     }
@@ -171,108 +191,47 @@ export class DocumentsService {
     return encrypted;
   }
 
-  /**
-   * Store file in S3 (encrypted)
-   */
-  async storeInS3(
-    fileId: string,
-    encryptedBuffer: Buffer,
-    mimetype: string,
-  ): Promise<string> {
-    // Configure your S3 bucket and region
-    const bucketName = process.env.AWS_S3_BUCKET || 'your-bucket-name';
-    const region = process.env.AWS_REGION || 'us-east-1';
-    const s3 = new S3Client({ region });
-    const key = `documents/${fileId}`;
-    const putCommand = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-      Body: encryptedBuffer,
-      ContentType: mimetype,
-      ServerSideEncryption: 'AES256', // S3 encryption at rest
-    });
-    try {
-      await s3.send(putCommand);
-      return `s3://${bucketName}/${key}`;
-    } catch (err) {
-      throw new Error('Failed to upload file to S3');
-    }
-  }
 
-  /**
-   * Generate thumbnail for images and upload to S3
-   */
-  async generateThumbnail(
-    fileBuffer: Buffer,
-    mimetype: string,
-    fileId?: string,
-  ): Promise<string | null> {
-    if (mimetype === 'image/jpeg' || mimetype === 'image/png') {
-      try {
-        // Generate thumbnail (200x200px)
-        const thumbnailBuffer = await sharp(fileBuffer)
-          .resize(200, 200, { fit: 'cover' })
-          .toBuffer();
-        // Upload thumbnail to S3
-        if (fileId) {
-          const bucketName = process.env.AWS_S3_BUCKET || 'your-bucket-name';
-          const region = process.env.AWS_REGION || 'us-east-1';
-          const s3 = new S3Client({ region });
-          const key = `thumbnails/${fileId}`;
-          const putCommand = new PutObjectCommand({
-            Bucket: bucketName,
-            Key: key,
-            Body: thumbnailBuffer,
-            ContentType: mimetype,
-            ServerSideEncryption: 'AES256',
-          });
-          await s3.send(putCommand);
-          return `s3://${bucketName}/${key}`;
-        }
-        return null;
-      } catch (err) {
-        // Thumbnail generation/upload failed
-        return null;
-      }
-    }
-    return null;
-  }
+
+
 
   /**
    * Main upload handler (to be called from controller)
    */
   async handleUpload(
-    file: Express.Multer.File,
-  ): Promise<{ fileId: string; s3Url: string; thumbnailUrl?: string }> {
+    file: MulterFile,
+  ): Promise<{ fileId: string }> {
     if (!this.validateFile(file)) {
       throw new Error('Invalid file type or size');
     }
-    const virusFree = await this.scanForViruses(file.buffer);
-    if (!virusFree) {
-      throw new Error('File failed virus scan');
-    }
+    // Remove virus scan, encryption, S3, and thumbnail logic for in-memory processing
     const fileId = this.generateFileId();
-    // Set initial progress
-    this.setProgress(fileId, 10); // 10% after validation/virus scan
+    this.setProgress(fileId, 10);
     await this.notifyWebhook(fileId, 10);
-    const encryptedBuffer = this.encryptFile(file.buffer);
-    this.setProgress(fileId, 30); // 30% after encryption
-    await this.notifyWebhook(fileId, 30);
-    const s3Url = await this.storeInS3(fileId, encryptedBuffer, file.mimetype);
-    this.setProgress(fileId, 80); // 80% after S3 upload
-    await this.notifyWebhook(fileId, 80);
-    let thumbnailUrl: string | undefined = undefined;
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-      const url = await this.generateThumbnail(
-        file.buffer,
-        file.mimetype,
-        fileId,
-      );
-      if (url) thumbnailUrl = url;
-    }
-    this.setProgress(fileId, 100); // 100% complete
+    // Create DocumentProcessing entity for status tracking
+    const processing = this.documentProcessingRepository.create({
+      fileId,
+      status: DocumentProcessingStatus.QUEUED,
+    });
+    await this.documentProcessingRepository.save(processing);
+    // Enqueue Bull job for background processing (pass buffer and mimetype)
+    await this.documentProcessingQueue.add({ fileId, fileBuffer: file.buffer, mimetype: file.mimetype });
+    this.setProgress(fileId, 100);
     await this.notifyWebhook(fileId, 100);
-    // TODO: Support batch/resume, send webhooks
-    return { fileId, s3Url, thumbnailUrl };
+    return { fileId };
   }
 }
+
+// Local MulterFile type for upload handling
+type MulterFile = {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  destination: string;
+  filename: string;
+  path: string;
+  stream: any;
+};

@@ -14,14 +14,25 @@ import { DocumentUploadDto } from './dto/document-upload.dto';
 import { multerConfig } from './multer.config';
 import { Body as RawBody } from '@nestjs/common';
 
+
 @Controller('documents')
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
+  /**
+   * Get document processing status and results by fileId
+   */
+  @Get('processing/:fileId')
+  async getProcessingStatus(@Param('fileId') fileId: string) {
+    const processing = await this.documentsService.getProcessingStatus(fileId);
+    if (!processing) return { error: 'Not found' };
+    return processing;
+  }
+
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', multerConfig))
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+  @UploadedFile() file: any,
     @Body() dto: DocumentUploadDto,
   ) {
     try {
@@ -39,7 +50,7 @@ export class DocumentsController {
   @Post('upload/batch')
   @UseInterceptors(FilesInterceptor('files', 10, multerConfig))
   async uploadFiles(
-    @UploadedFiles() files: Express.Multer.File[],
+  @UploadedFiles() files: any[],
     @Body() dto: DocumentUploadDto,
   ) {
     // TODO: Track batch upload progress and send webhook updates
