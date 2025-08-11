@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { PrivacyModule } from './privacy/privacy.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
@@ -39,6 +40,7 @@ import { RiskModule } from './risk/risk.module';
         entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
         synchronize: false, // Use migrations instead
         logging: true,
+  PrivacyModule,
         extra: {
           max: configService.get<number>('DB_POOL_MAX', 20), // Default to 20 if not set
         },
