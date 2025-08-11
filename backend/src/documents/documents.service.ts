@@ -1,23 +1,4 @@
-  /**
-   * Get all documents for a user
-   */
-  async getUserDocuments(userId: string) {
-    // Assuming DocumentProcessing has a userId field or is linked to user
-    // If not, update entity and logic accordingly
-    return this.documentProcessingRepository.find({ where: { userId } });
-  }
-
-  /**
-   * Delete all documents for a user (retention policy)
-   */
-  async deleteUserDocuments(userId: string) {
-    const docs = await this.getUserDocuments(userId);
-    for (const doc of docs) {
-      await this.documentProcessingRepository.delete(doc.id);
-    }
-    return { status: 'deleted', userId };
-  }
-import { Express } from 'express';
+  import { Express } from 'express';
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
