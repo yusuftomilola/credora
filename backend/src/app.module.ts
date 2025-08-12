@@ -9,7 +9,7 @@ import { PrivacyModule } from './privacy/privacy.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IpfsModule } from './ipfs/ipfs.module';
@@ -18,6 +18,8 @@ import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
 
 import { RiskModule } from './risk/risk.module';
+import { AuditModule } from './audit/audit.module';
+import { AuditInterceptor } from './audit/audit.interceptor';
 
 @Module({
   imports: [
@@ -75,6 +77,7 @@ import { RiskModule } from './risk/risk.module';
       },
     ]),
   RiskModule,
+  AuditModule,
   ],
   controllers: [AppController],
   providers: [
@@ -82,6 +85,10 @@ import { RiskModule } from './risk/risk.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
   ],
 })
