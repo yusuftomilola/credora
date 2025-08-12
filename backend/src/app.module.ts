@@ -16,8 +16,10 @@ import { IpfsModule } from './ipfs/ipfs.module';
 import { CreditBureauModule } from './credit-bureaus/credit-bureau.module';
 import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
-
 import { RiskModule } from './risk/risk.module';
+import { BankingModule } from './banking/banking.module';
+import { PlaidModule } from './plaid/plaid.module';
+import { TransactionsModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -41,7 +43,7 @@ import { RiskModule } from './risk/risk.module';
         entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
         synchronize: false, // Use migrations instead
         logging: true,
-  PrivacyModule,
+        PrivacyModule,
         extra: {
           max: configService.get<number>('DB_POOL_MAX', 20), // Default to 20 if not set
         },
@@ -55,7 +57,7 @@ import { RiskModule } from './risk/risk.module';
       },
     }),
     DocumentsModule,
-  IpfsModule,
+    IpfsModule,
 
     UsersModule,
 
@@ -74,7 +76,10 @@ import { RiskModule } from './risk/risk.module';
         limit: 10,
       },
     ]),
-  RiskModule,
+    RiskModule,
+    BankingModule,
+    PlaidModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [
