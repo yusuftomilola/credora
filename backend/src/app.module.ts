@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { PrivacyModule } from './privacy/privacy.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
@@ -12,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IpfsModule } from './ipfs/ipfs.module';
+import { CreditBureauModule } from './credit-bureaus/credit-bureau.module';
 import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
 
@@ -39,6 +41,7 @@ import { RiskModule } from './risk/risk.module';
         entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
         synchronize: false, // Use migrations instead
         logging: true,
+  PrivacyModule,
         extra: {
           max: configService.get<number>('DB_POOL_MAX', 20), // Default to 20 if not set
         },
@@ -61,6 +64,9 @@ import { RiskModule } from './risk/risk.module';
     RedisModule,
 
     EmailModule,
+
+    // Credit Bureau Integration
+    CreditBureauModule,
 
     ThrottlerModule.forRoot([
       {
