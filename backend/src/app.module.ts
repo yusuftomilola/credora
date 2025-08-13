@@ -9,7 +9,7 @@ import { PrivacyModule } from './privacy/privacy.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { EmailModule } from './email/email.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IpfsModule } from './ipfs/ipfs.module';
@@ -17,9 +17,8 @@ import { CreditBureauModule } from './credit-bureaus/credit-bureau.module';
 import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
 import { RiskModule } from './risk/risk.module';
-import { BankingModule } from './banking/banking.module';
-import { PlaidModule } from './plaid/plaid.module';
-import { TransactionsModule } from './transaction/transaction.module';
+import { AuditModule } from './audit/audit.module';
+import { AuditInterceptor } from './audit/audit.interceptor';
 
 @Module({
   imports: [
@@ -43,7 +42,6 @@ import { TransactionsModule } from './transaction/transaction.module';
         entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
         synchronize: false, // Use migrations instead
         logging: true,
-        PrivacyModule,
         extra: {
           max: configService.get<number>('DB_POOL_MAX', 20), // Default to 20 if not set
         },
@@ -56,30 +54,23 @@ import { TransactionsModule } from './transaction/transaction.module';
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
-    DocumentsModule,
-    IpfsModule,
-
-    UsersModule,
-
-    AuthModule,
-
-    RedisModule,
-
-    EmailModule,
-
-    // Credit Bureau Integration
-    CreditBureauModule,
-
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
         limit: 10,
       },
     ]),
+    UsersModule,
+    AuthModule,
+    RedisModule,
+    EmailModule,
+    PrivacyModule,
+    DocumentsModule,
+    IpfsModule,
+    // Credit Bureau Integration
+    CreditBureauModule,
     RiskModule,
-    BankingModule,
-    PlaidModule,
-    TransactionsModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [
@@ -87,6 +78,10 @@ import { TransactionsModule } from './transaction/transaction.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
   ],
 })
