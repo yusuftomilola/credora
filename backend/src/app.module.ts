@@ -16,7 +16,6 @@ import { IpfsModule } from './ipfs/ipfs.module';
 import { CreditBureauModule } from './credit-bureaus/credit-bureau.module';
 import { DocumentsModule } from './documents/documents.module';
 import { BullModule } from '@nestjs/bull';
-
 import { RiskModule } from './risk/risk.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/audit.interceptor';
@@ -43,7 +42,6 @@ import { AuditInterceptor } from './audit/audit.interceptor';
         entities: ['src/**/*.entity.ts', 'dist/**/*.entity.js'],
         synchronize: false, // Use migrations instead
         logging: true,
-  PrivacyModule,
         extra: {
           max: configService.get<number>('DB_POOL_MAX', 20), // Default to 20 if not set
         },
@@ -56,28 +54,23 @@ import { AuditInterceptor } from './audit/audit.interceptor';
         port: parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
-    DocumentsModule,
-  IpfsModule,
-
-    UsersModule,
-
-    AuthModule,
-
-    RedisModule,
-
-    EmailModule,
-
-    // Credit Bureau Integration
-    CreditBureauModule,
-
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
         limit: 10,
       },
     ]),
-  RiskModule,
-  AuditModule,
+    UsersModule,
+    AuthModule,
+    RedisModule,
+    EmailModule,
+    PrivacyModule,
+    DocumentsModule,
+    IpfsModule,
+    // Credit Bureau Integration
+    CreditBureauModule,
+    RiskModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [
