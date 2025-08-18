@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { PrivacyModule } from './privacy/privacy.module';
 import { AuthModule } from './auth/auth.module';
@@ -19,6 +18,7 @@ import { BullModule } from '@nestjs/bull';
 import { RiskModule } from './risk/risk.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/audit.interceptor';
+import { ScreeningModule } from './screening/screening.module';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import { AuditInterceptor } from './audit/audit.interceptor';
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        port: Number.parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
     ThrottlerModule.forRoot([
@@ -71,6 +71,7 @@ import { AuditInterceptor } from './audit/audit.interceptor';
     CreditBureauModule,
     RiskModule,
     AuditModule,
+    ScreeningModule,
   ],
   controllers: [AppController],
   providers: [
