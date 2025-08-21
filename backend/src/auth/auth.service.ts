@@ -45,15 +45,15 @@ export class AuthService {
       where: { email },
     });
     if (existingUser) {
-      throw new ConflictException('User already exists');
+      throw new BadRequestException('User already exists');
     }
 
     // Hash password
     const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await hash(password, saltRounds);
 
     // Generate email verification token
-    const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+    const emailVerificationToken = uuidv4();
 
     // Create user
     const user = this.userRepository.create({
@@ -78,7 +78,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userRepository.findOne({ where: { email } });
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (user && (await compare(password, user.password))) {
       const { password: _, ...result } = user;
       return result;
     }
@@ -89,7 +89,7 @@ export class AuthService {
     const { email, password, twoFactorCode } = loginDto;
 
     const user = await this.userRepository.findOne({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -138,7 +138,7 @@ export class AuthService {
     if (!user) {
       user = this.userRepository.create({
         email: `${walletAddress}@wallet.local`,
-        password: crypto.randomBytes(32).toString('hex'), // Random password
+        password: uuidv4(), // Random password
         walletAddress,
         isEmailVerified: true, // Wallet users are auto-verified
       });
@@ -226,7 +226,7 @@ export class AuthService {
       return { message: 'If the email exists, a reset link has been sent' };
     }
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetToken = uuidv4();
     user.passwordResetToken = resetToken;
     user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     await this.userRepository.save(user);
@@ -250,7 +250,7 @@ export class AuthService {
     }
 
     const saltRounds = 12;
-    user.password = await bcrypt.hash(newPassword, saltRounds);
+    user.password = await hash(newPassword, saltRounds);
     user.passwordResetToken = '';
     user.passwordResetExpires = new Date();
     await this.userRepository.save(user);
