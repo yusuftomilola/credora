@@ -4,6 +4,15 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
+  incr(redisKey: string) {
+      throw new Error('Method not implemented.');
+  }
+  keys(pattern: string): Promise<string[]> {
+      throw new Error('Method not implemented.');
+  }
+  expire(redisKey: string, arg1: number) {
+      throw new Error('Method not implemented.');
+  }
   private client: Redis;
 
   constructor(private configService: ConfigService) {}

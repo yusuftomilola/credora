@@ -19,6 +19,7 @@ import { RiskModule } from './risk/risk.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/audit.interceptor';
 import { ScreeningModule } from './screening/screening.module';
+import { ApiGatewayModule } from './api-gateway/api-gateway.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { ScreeningModule } from './screening/screening.module';
     RiskModule,
     AuditModule,
     ScreeningModule,
+     ApiGatewayModule,
   ],
   controllers: [AppController],
   providers: [
