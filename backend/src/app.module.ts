@@ -73,7 +73,7 @@ import { ApiGatewayModule } from './api-gateway/api-gateway.module';
     RiskModule,
     AuditModule,
     ScreeningModule,
-     ApiGatewayModule,
+    ApiGatewayModule,
   ],
   controllers: [AppController],
   providers: [
