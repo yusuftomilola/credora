@@ -242,15 +242,27 @@ export default function Home() {
         </svg>
         <div className="w-full absolute flex gap-[32px] flex-col p-[43px]">
           <div className="justify-between w-full items-center flex flex-col lg:flex-row-reverse gap-[32px]">
-            <div className="flex flex-col font-[Ubuntu_Sans] text-[14px] text-[#F0FFF9] items-center justify-center gap-[4px] ">
+            <motion.div
+              variants={randomAnimation()}
+              initial="hidden"
+              animate="visible"
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="flex flex-col font-[Ubuntu_Sans] text-[14px] text-[#F0FFF9] items-center justify-center gap-[4px] "
+            >
               <h1 className=" font-[700] ">QUICK LINKS</h1>
               <div className="flex gap-[22px]">
                 <button>DOCS</button>
                 <button>DOCS</button>
                 <button>DOCS</button>
               </div>
-            </div>
-            <div className="flex flex-col gap-[16px] ">
+            </motion.div>
+            <motion.div
+              variants={randomAnimation()}
+              initial="hidden"
+              animate="visible"
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="flex flex-col gap-[16px] "
+            >
               <svg
                 width="90"
                 height="80"
@@ -280,8 +292,14 @@ export default function Home() {
               <h1 className="font-[Genos] leading-[20px] text-center text-[#F0FFF9] text-[20px] font-[700]">
                 Credora
               </h1>
-            </div>
-            <div className="flex flex-col font-[Ubuntu_Sans] text-[14px] text-[#F0FFF9] items-center lg:text-start justify-center gap-[4px] ">
+            </motion.div>
+            <motion.div
+              variants={randomAnimation()}
+              initial="hidden"
+              animate="visible"
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="flex flex-col font-[Ubuntu_Sans] text-[14px] text-[#F0FFF9] items-center lg:text-start justify-center gap-[4px] "
+            >
               <h1 className="hidden lg:flex font-[700] lg:text-start  w-full ">
                 SOCIALS
               </h1>
@@ -335,7 +353,7 @@ export default function Home() {
                   <span className="text-[18px]">Telegram</span>
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
           <div className="w-full flex gap-[12px] justify-center items-center border text-[#6F817A] font-[Ubuntu_Sans] text-[10px] border-[#1A2621] py-[32px]">
             <Copyright size={16} />
