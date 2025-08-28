@@ -1,12 +1,19 @@
-"use client"
+"use client";
 
-import {
-  ArrowDown,
-  ArrowRight,
-  Copyright,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowDown, ArrowRight, Copyright } from "lucide-react";
 
 export default function Home() {
+  const animations = [
+    { hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }, // fade up
+    { hidden: { opacity: 0, x: -50 }, visible: { opacity: 1, x: 0 } }, // slide left
+    { hidden: { opacity: 0, x: 50 }, visible: { opacity: 1, x: 0 } }, // slide right
+    { hidden: { scale: 0.8, opacity: 0 }, visible: { scale: 1, opacity: 1 } }, // zoom
+  ];
+
+  function randomAnimation() {
+    return animations[Math.floor(Math.random() * animations.length)];
+  }
 
   const howTo = [
     {
@@ -65,16 +72,26 @@ export default function Home() {
       </svg>
       <div className="w-full text-[#010D08] lg:pl-[32px] pl-[16px]">
         <div className="w-[271px] flex flex-col gap-[12px]  lg:w-[652px]">
-          <h1 className=" text-[32px] lg:text-[74px] lg:leading-[69px] font-[Genos] font-[700]">
+          <motion.h1
+            variants={randomAnimation()}
+            initial="hidden"
+            animate="visible"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className=" text-[32px] lg:text-[74px] lg:leading-[69px] font-[Genos] font-[700]"
+          >
             They want trust. You’ve got receipts.
-          </h1>
+          </motion.h1>
           <p className="font-[Ubuntu_Sans] font-medium text-[14px] lg:text-[16px] ">
             Trustless Identity. Trusted Credit.
           </p>
-          <button className="bg-gradient-to-r w-fit from-[#010D08]/10 to-[#021B10]/10 rounded-[8px] p-[8px_24px] ">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-gradient-to-r w-fit from-[#010D08]/10 to-[#021B10]/10 rounded-[8px] p-[8px_24px] "
+          >
             Let's Get Started
-          </button>
-
+          </motion.button>
         </div>
       </div>
       <div className="w-full h-auto relative flex items-center justify-start">
@@ -133,8 +150,12 @@ export default function Home() {
               <div className="w-full flex flex-col items-center justify-center lg:flex-row ">
                 {howTo.map((how, id) => (
                   <>
-                    <div
+                    <motion.div
                       key={id}
+                      variants={randomAnimation()}
+                      initial="hidden"
+                      animate="visible"
+                      transition={{ duration: 0.6, delay: id * 0.2 }}
                       className="p-[24px_40px] h-[105px] border border-white/10 rounded-[24px] w-full  flex flex-col  gap-[12px] bg-gradient-to-b from-[#010D08] to-[#021B10] items-center justify-center"
                     >
                       <h1 className="text-[#F0FFF9] font-[Ubuntu_Sans] text-[16px] font-[500]">
@@ -143,7 +164,7 @@ export default function Home() {
                       <p className="font-[Ubuntu_Sans] font-[400] text-[14px] text-[#F0FFF9]">
                         {how.desc}
                       </p>
-                    </div>
+                    </motion.div>
                     {id < 2 && (
                       <ArrowRight
                         color="white"
@@ -167,6 +188,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* why section */}
       <div className="rounded-[24px] p-[48px_23px] lg:p-[48px] flex items-center justify-center flex-col w-full gap-[24px]">
         <div className="flex flex-col gap-[6px]">
           <p className="text-[#00321C] font-[Ubuntu_Sans] text-center font-[400] text-[14px]">
@@ -180,7 +203,11 @@ export default function Home() {
           <div className="w-full flex gap-[24px] flex-col items-center justify-center lg:flex-row ">
             {why.map((how, id) => (
               <>
-                <div
+                <motion.div
+                  variants={randomAnimation()}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ duration: 0.6, delay: id * 0.3 }}
                   key={id}
                   className=" rounded-[24px] min-w-[358px] max-w-[358px] lg:max-w-full  w-full border border-white/50 p-10 flex gap-[12px] bg-gradient-to-b from-[#09D983]10 to-[#0A955C]/10 items-center justify-center"
                 >
@@ -192,7 +219,7 @@ export default function Home() {
                       {how.desc}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               </>
             ))}
           </div>
